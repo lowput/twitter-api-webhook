@@ -12,12 +12,12 @@ import (
 )
 
 type HmacResult struct {
-	ResponseToken string	`json:"response_token"`
+	ResponseToken string `json:"response_token"`
 }
 
 type TweetCreateEvent struct {
-	ForUseId string 		`json:"for_user_id"`
-	Event	[]*CreateEvent	`json:"tweet_create_events"`
+	ForUseId string         `json:"for_user_id"`
+	Event    []*CreateEvent `json:"tweet_create_events"`
 }
 
 type CreateEvent struct {
@@ -25,14 +25,14 @@ type CreateEvent struct {
 }
 
 type Entities struct {
-	MediaEntities []*MediaEntities	`json:"media"`
+	MediaEntities []*MediaEntities `json:"media"`
 }
 
 type MediaEntities struct {
-	Indices     [2]int `json:"indices"`
-	DisplayURL  string  `json:"display_url"`
-	ExpandedURL string  `json:"expanded_url"`
-	URL         string  `json:"url"`
+	Indices           [2]int     `json:"indices"`
+	DisplayURL        string     `json:"display_url"`
+	ExpandedURL       string     `json:"expanded_url"`
+	URL               string     `json:"url"`
 	ID                int64      `json:"id"`
 	IDStr             string     `json:"id_str"`
 	MediaURL          string     `json:"media_url"`
@@ -67,12 +67,12 @@ func TwitterMediaImageSave(body []byte) {
 
 	for _, event := range tweet.Event {
 		for _, media := range event.Entities.MediaEntities {
-			save(media.MediaURLHttps + ":large", media.IDStr)
+			save(media.MediaURLHttps+":large", media.IDStr)
 		}
 	}
 }
 
-func save(url string, id string)  {
+func save(url string, id string) {
 	if len(url) == 0 {
 		log.Fatal("empty url")
 		return
@@ -90,7 +90,7 @@ func save(url string, id string)  {
 	bucket := client.Bucket(os.Getenv("BUCKET_NAME")).Object(name).NewWriter(ctx)
 	defer bucket.Close()
 
-	res , err := http.Get(url)
+	res, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err)
 	}
