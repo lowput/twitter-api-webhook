@@ -1,12 +1,12 @@
 package twitter_api_webhook
 
 import (
-	"cloud.google.com/go/storage"
-	"context"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"os"
 )
@@ -67,34 +67,39 @@ func TwitterMediaImageSave(body []byte) {
 
 	for _, event := range tweet.Event {
 		for _, media := range event.Entities.MediaEntities {
-			save(media.MediaURLHttps+":large", media.IDStr)
+			slackPost(media.MediaURLHttps+":large", fmt.Sprintf("%s.jpg", media.IDStr))
 		}
 	}
 }
 
-func save(url string, id string) {
-	if len(url) == 0 {
+func slackPost(imageUrl string, fileName string) {
+	if len(imageUrl) == 0 {
 		log.Fatal("empty url")
 		return
-	} else {
-		log.Printf("Backet save : %s", url)
 	}
 
-	ctx := context.Background()
-	client, err := storage.NewClient(ctx)
+	log.Printf("Post slack : %s", imageUrl)
+
+	image, err := http.Get(imageUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer image.Body.Close()
 
-	name := fmt.Sprintf("%s.jpg", id)
-	bucket := client.Bucket(os.Getenv("BUCKET_NAME")).Object(name).NewWriter(ctx)
-	defer bucket.Close()
+	// Slack Post
+	url := "https://slack.com/api/files.upload?token=" + os.Getenv("SLACK_ACCESS_TOKEN") + "&channels=" + os.Getenv("SLACK_CHANNEL_ID")
+	body := &bytes.Buffer{}
 
-	res, err := http.Get(url)
+	mw := multipart.NewWriter(body)
+	fw, _ := mw.CreateFormFile("file", fileName)
+	io.Copy(fw, image.Body)
+
+	contentType := mw.FormDataContentType()
+	mw.Close()
+
+	res, err := http.Post(url, contentType, body)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
-	defer res.Body.Close()
-
-	io.Copy(bucket, res.Body)
+	res.Body.Close()
 }

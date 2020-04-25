@@ -1,18 +1,20 @@
 # Google Cloud Functions Sample Code
 
-Twitterの[Account Activity API](https://developer.twitter.com/en/docs/accounts-and-users/subscribe-account-activity/api-reference/aaa-premium)で登録したユーザーのツイートに画像があれば保存します。
+Twitterの[Account Activity API](https://developer.twitter.com/en/docs/accounts-and-users/subscribe-account-activity/api-reference/aaa-premium)
+で登録したユーザーのツイートに画像があればSlackへPOSTする
+
 
 ## 環境
 
 - [Cloud Functions](https://cloud.google.com/functions?hl=ja)
-- [Cloud Storage](https://cloud.google.com/storage/?hl=ja)
 
 ## 設定
 
 `.env.yaml.sample` を `.env.yaml` にリネームしてそれぞれの環境に合わせます。
 
 - TWITTER_CONSUMER_SECRET: [Twitter Developer](https://developer.twitter.com/)で作成した `API secret key`
-- BUCKET_NAME: Cloud Storageに保存するBucket名
+- SLACK_ACCESS_TOKEN: Slack API トークン
+- SLACK_CHANNEL_ID: Slack チャンネルID
 
 ## デプロイ
 
